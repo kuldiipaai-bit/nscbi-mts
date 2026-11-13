@@ -1,5 +1,6 @@
 // Supabase Edge Function (Deno): admin-only user management.
 // The service-role key never leaves the server; callers must be an active admin.
+// JWT verification is done in this code (auth.getUser + admin role check), not by the gateway.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 const cors = {
@@ -50,8 +51,8 @@ Deno.serve(async (req) => {
       user_metadata: { full_name: body.full_name, employee_id: body.employee_id || null, phone: body.phone || null },
     });
     if (error) return json({ error: error.message }, 400);
-    // The signup trigger runs before app_metadata is stored, so set the role explicitly.
-    const { error: roleErr } = await admin.from("profiles").update({ role: body.role }).eq("id", data.user!.id);
+    // The signup trigger runs before app_metadata is stored and leaves the profile inactive, so set role and activate here.
+    const { error: roleErr } = await admin.from("profiles").update({ role: body.role, active: true }).eq("id", data.user!.id);
     if (roleErr) return json({ error: roleErr.message }, 500);
     return json({ ok: true, id: data.user?.id });
   }

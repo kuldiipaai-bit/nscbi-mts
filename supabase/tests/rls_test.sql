@@ -139,6 +139,16 @@ begin
     'deactivated user must not insert';
   reset role; update public.profiles set active = true where id = public.t_uid('se2');
 
+  ----------------------------------------------------------------- self-signup is inactive and sees nothing
+  reset role;
+  insert into auth.users (id, email, raw_app_meta_data, raw_user_meta_data)
+  values ('00000000-0000-0000-0000-0000000000aa', 'stranger@example.com', '{}', '{"role":"admin","full_name":"Stranger"}');
+  assert (select active from public.profiles where id = '00000000-0000-0000-0000-0000000000aa') = false, 'self-signup must start inactive';
+  assert (select role from public.profiles where id = '00000000-0000-0000-0000-0000000000aa') = 'se', 'role in user_metadata must be ignored';
+  perform set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000aa', false); set role authenticated;
+  assert (select count(*) from public.activities) = 0, 'self-signup user must not read activities';
+  reset role;
+
   ----------------------------------------------------------------- notifications privacy
   reset role; perform set_config('request.jwt.claim.sub', public.t_uid('se1')::text, false); set role authenticated;
   assert (select count(*) from public.notifications where user_id <> public.t_uid('se1')) = 0, 'SE sees only own notifications';

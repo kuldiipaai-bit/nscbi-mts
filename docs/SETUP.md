@@ -5,11 +5,11 @@ Total cost: Rs 0 on the free tiers. Check each provider's current free limits be
 ## 1. Create the Supabase project
 1. Sign up at supabase.com, create a project (pick the nearest region, e.g. Mumbai).
 2. **Authentication -> Providers -> Email**: turn **off** "Allow new users to sign up" (accounts are created by the Admin only) and turn **off** "Confirm email".
-3. **SQL Editor**: paste and run `supabase/migrations/0001_init.sql`. (Do NOT run `seed.sql` in production.)
+3. **SQL Editor**: paste and run, in this order, `supabase/migrations/0001_init.sql`, `0002_harden_function_grants.sql`, `0003_inactive_self_signup.sql`. (Do NOT run `seed.sql` in production.)
 4. **Settings -> API**: note the *Project URL* and the *anon public* key.
 
 ## 2. Create the first Admin
-The first user created in the project automatically becomes **admin**.
+The first user created in the project, if its email is exactly `admin@mts.local`, automatically becomes **admin**. Anyone who registers without an admin-assigned role starts inactive and sees nothing.
 1. **Authentication -> Users -> Add user**: email `admin@mts.local`, a strong password, tick "Auto Confirm".
 2. Login ID in the app is the part before `@mts.local` -> `admin`.
 3. Sign in, open **Users** and create the GM, Maintenance Engineers and Shift Engineers (each gets a login ID + temporary password). Then **Services** -> add services and assign each to its Maintenance Engineer.
