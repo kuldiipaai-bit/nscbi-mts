@@ -31,9 +31,8 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          # Repo secrets (Settings -> Secrets and variables -> Actions)
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          # Supabase URL and anon key come from web/.env.production (both are public by design;
+          # Row Level Security protects the data). No GitHub secrets needed.
           # "/<repo>" for project sites; set repo variable PAGES_BASE_PATH="" for a custom domain
           NEXT_PUBLIC_BASE_PATH: ${{ vars.PAGES_BASE_PATH != '' && vars.PAGES_BASE_PATH || format('/{0}', github.event.repository.name) }}
       - run: touch out/.nojekyll

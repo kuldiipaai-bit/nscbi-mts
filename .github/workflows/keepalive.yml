@@ -11,8 +11,9 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Call ping()
         run: |
-          curl -fsS -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/ping" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Content-Type: application/json" -d '{}'
+          URL=$(grep '^NEXT_PUBLIC_SUPABASE_URL=' web/.env.production | cut -d= -f2-)
+          KEY=$(grep '^NEXT_PUBLIC_SUPABASE_ANON_KEY=' web/.env.production | cut -d= -f2-)
+          curl -fsS -X POST "$URL/rest/v1/rpc/ping" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'

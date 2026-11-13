@@ -24,11 +24,13 @@ supabase functions deploy admin-users
 (Or paste `supabase/functions/admin-users/index.ts` in **Edge Functions -> New function** named `admin-users`.)
 
 ## 4. GitHub
-1. Push this repo to GitHub (default branch `main`).
-2. **Settings -> Secrets and variables -> Actions -> Secrets**: add `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
+1. Create an empty **public** repository on GitHub (free Pages needs a public repo). Push this project to its `main` branch.
+2. Put the Supabase **Project URL** and **anon public** key in `web/.env.production` (copy `web/.env.production.example`) and commit it.
+   Both values are public by design (every visitor's browser receives them); Row Level Security in the database protects the data.
+   Never put the service-role key or the database password anywhere in the repo.
 3. **Settings -> Pages -> Source: GitHub Actions**.
 4. Push to `main` -> the *Deploy to GitHub Pages* workflow publishes `https://<user>.github.io/<repo>/`.
-5. Private repo + Pages may need a paid GitHub plan; a public repo is fine because no secrets are in the code (the anon key is public by design; Row Level Security protects the data).
+5. Do not run `supabase/seed.sql` on the cloud project: it contains demo users with a published password.
 
 The *Supabase keep-alive* workflow pings the database twice a week so the free project is not paused.
 
