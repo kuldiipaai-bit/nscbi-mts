@@ -81,6 +81,15 @@ npm test
 npm run build
 ```
 
+**লোকালে পুরো Supabase (Docker লাগে, অ্যাকাউন্ট লাগে না):**
+
+```
+npx supabase start
+npx supabase functions serve
+```
+
+প্রথমবার কয়েক GB ইমেজ নামে। `supabase start` শেষে ঠিকানা (http://127.0.0.1:54321) ও anon key দেখায়, সেগুলো `web/.env.local`-এ বসান। মাইগ্রেশন ও ডেমো ইউজার নিজে থেকে বসে। ডাটাবেস নতুন করে তৈরি করতে `npx supabase db reset`। বন্ধ করতে `npx supabase stop`। Studio (ডাটাবেস দেখার পর্দা): http://127.0.0.1:54323।
+
 **ডাটাবেসের পরীক্ষা (Docker লাগে):** CI-র `database` জবে যে চারটা ফাইল চলে, একই ক্রমে একটা Postgres 16 কনটেইনারে চালাতে হয়: `supabase/tests/stubs.sql`, `supabase/migrations/0001_init.sql`, `supabase/seed.sql`, `supabase/tests/rls_test.sql`।
 
 **ডেমো ইউজার (শুধু ডেভেলপমেন্ট, supabase/seed.sql চালালে):** admin1, me_elec, me_hvac, se1, se2, gm1। পাসওয়ার্ড seed.sql ফাইলে লেখা। প্রোডাকশনে seed.sql চালাবে না।

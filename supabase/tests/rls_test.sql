@@ -129,6 +129,16 @@ begin
   perform public.stop_schedule(v_sched);
   assert (select active from public.schedules where id = v_sched) = false, 'schedule stopped';
 
+  ----------------------------------------------------------------- deactivated user loses all access
+  reset role; update public.profiles set active = false where id = public.t_uid('se2');
+  perform set_config('request.jwt.claim.sub', public.t_uid('se2')::text, false); set role authenticated;
+  assert (select count(*) from public.activities) = 0, 'deactivated user must not read activities';
+  assert (select count(*) from public.observations) = 0, 'deactivated user must not read observations';
+  assert public.t_fails(format(
+    $q$insert into public.observations(activity_id, submitted_by) values ('%s','%s')$q$, v_act_hvac, public.t_uid('se2'))),
+    'deactivated user must not insert';
+  reset role; update public.profiles set active = true where id = public.t_uid('se2');
+
   ----------------------------------------------------------------- notifications privacy
   reset role; perform set_config('request.jwt.claim.sub', public.t_uid('se1')::text, false); set role authenticated;
   assert (select count(*) from public.notifications where user_id <> public.t_uid('se1')) = 0, 'SE sees only own notifications';

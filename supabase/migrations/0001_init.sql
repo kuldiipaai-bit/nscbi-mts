@@ -371,29 +371,29 @@ revoke all on all functions in schema public from anon;
 grant execute on function public.ping() to anon;
 
 -- profiles
-create policy profiles_read on public.profiles for select to authenticated using (true);
+create policy profiles_read on public.profiles for select to authenticated using (public.auth_role() is not null);
 create policy profiles_admin_write on public.profiles for all to authenticated
   using (public.auth_role() = 'admin') with check (public.auth_role() = 'admin');
 
 -- services
-create policy services_read on public.services for select to authenticated using (true);
+create policy services_read on public.services for select to authenticated using (public.auth_role() is not null);
 create policy services_admin_write on public.services for all to authenticated
   using (public.auth_role() = 'admin') with check (public.auth_role() = 'admin');
 
 -- schedules
-create policy schedules_read on public.schedules for select to authenticated using (true);
+create policy schedules_read on public.schedules for select to authenticated using (public.auth_role() is not null);
 create policy schedules_write on public.schedules for all to authenticated
   using (public.auth_role() = 'admin' or (public.auth_role() = 'me' and public.owns_service(service_id)))
   with check (public.auth_role() = 'admin' or (public.auth_role() = 'me' and public.owns_service(service_id)));
 
 -- activities
-create policy activities_read on public.activities for select to authenticated using (true);
+create policy activities_read on public.activities for select to authenticated using (public.auth_role() is not null);
 create policy activities_write on public.activities for all to authenticated
   using (public.auth_role() = 'admin' or (public.auth_role() = 'me' and public.owns_service(service_id)))
   with check (public.auth_role() = 'admin' or (public.auth_role() = 'me' and public.owns_service(service_id)));
 
 -- observations
-create policy observations_read on public.observations for select to authenticated using (true);
+create policy observations_read on public.observations for select to authenticated using (public.auth_role() is not null);
 create policy observations_insert on public.observations for insert to authenticated
   with check (public.auth_role() in ('se', 'admin') and submitted_by = auth.uid());
 create policy observations_update_own on public.observations for update to authenticated
@@ -404,7 +404,7 @@ revoke update on public.observations from authenticated;
 grant update (monitored, checklist_results, remarks) on public.observations to authenticated;
 
 -- photos
-create policy photos_read on public.observation_photos for select to authenticated using (true);
+create policy photos_read on public.observation_photos for select to authenticated using (public.auth_role() is not null);
 create policy photos_insert on public.observation_photos for insert to authenticated
   with check (exists (select 1 from public.observations o
                       where o.id = observation_id and o.submitted_by = auth.uid()));
@@ -413,7 +413,7 @@ create policy photos_delete_own on public.observation_photos for delete to authe
                  where o.id = observation_id and o.submitted_by = auth.uid() and o.status = 'open'));
 
 -- remarks (ME owner / GM / admin may add; resolve+reopen rows come from the RPC)
-create policy remarks_read on public.observation_remarks for select to authenticated using (true);
+create policy remarks_read on public.observation_remarks for select to authenticated using (public.auth_role() is not null);
 create policy remarks_insert on public.observation_remarks for insert to authenticated
   with check (
     author_id = auth.uid() and kind = 'remark'
@@ -438,7 +438,7 @@ values ('observation-photos', 'observation-photos', false, 1048576,
 on conflict (id) do nothing;
 
 create policy photos_bucket_read on storage.objects for select to authenticated
-  using (bucket_id = 'observation-photos');
+  using (bucket_id = 'observation-photos' and public.auth_role() is not null);
 create policy photos_bucket_insert on storage.objects for insert to authenticated
   with check (bucket_id = 'observation-photos' and public.auth_role() in ('se', 'admin'));
 create policy photos_bucket_delete on storage.objects for delete to authenticated

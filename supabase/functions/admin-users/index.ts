@@ -50,6 +50,9 @@ Deno.serve(async (req) => {
       user_metadata: { full_name: body.full_name, employee_id: body.employee_id || null, phone: body.phone || null },
     });
     if (error) return json({ error: error.message }, 400);
+    // The signup trigger runs before app_metadata is stored, so set the role explicitly.
+    const { error: roleErr } = await admin.from("profiles").update({ role: body.role }).eq("id", data.user!.id);
+    if (roleErr) return json({ error: roleErr.message }, 500);
     return json({ ok: true, id: data.user?.id });
   }
 
