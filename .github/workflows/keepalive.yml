@@ -1,0 +1,18 @@
+name: Supabase keep-alive
+
+# Free Supabase projects pause after a week without activity. This pings the
+# database twice a week. (Not needed once you self-host or move to a paid plan.)
+on:
+  schedule:
+    - cron: "17 3 * * 1,4"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call ping()
+        run: |
+          curl -fsS -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/rpc/ping" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" -d '{}'

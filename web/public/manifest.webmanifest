@@ -1,0 +1,13 @@
+{
+  "name": "Maintenance Tracker - NSCBI Airport",
+  "short_name": "MTS",
+  "description": "Maintenance activity tracking for terminal building services",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fb",
+  "theme_color": "#2549b8",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

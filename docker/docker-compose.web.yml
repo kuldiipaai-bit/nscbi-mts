@@ -1,0 +1,16 @@
+# Serves the web app (static) on port 8080.
+# Use together with a Supabase backend: Supabase Cloud, or the self-hosted stack (docs/SELFHOST.md).
+#
+#   cp docker/.env.example docker/.env      # fill in the two values
+#   docker compose -f docker/docker-compose.web.yml --env-file docker/.env up -d --build
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.web
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL:?set SUPABASE_URL in docker/.env}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:?set SUPABASE_ANON_KEY in docker/.env}
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    restart: unless-stopped
