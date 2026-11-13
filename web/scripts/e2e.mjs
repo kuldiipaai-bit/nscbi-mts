@@ -4,12 +4,17 @@
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 
+const envFile = process.env.E2E_ENV_FILE || ".env.local";
 const env = Object.fromEntries(
-  readFileSync(new URL("../.env.local", import.meta.url), "utf8")
+  readFileSync(new URL(`../${envFile}`, import.meta.url), "utf8")
     .split(/\r?\n/).filter((l) => l && !l.startsWith("#")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)]),
 );
 const URL_ = env.NEXT_PUBLIC_SUPABASE_URL, KEY = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-if (!/127\.0\.0\.1|localhost/.test(URL_)) throw new Error("Refusing to run: not a local Supabase URL");
+if (!/127\.0\.0\.1|localhost/.test(URL_) && process.env.E2E_ALLOW_REMOTE !== "1") {
+  throw new Error("Refusing to run against a remote project (set E2E_ALLOW_REMOTE=1 and use throw-away test users)");
+}
+const PASSWORD = process.env.E2E_PASSWORD || "Demo@12345";
+const L = { me1: "me_elec", me2: "me_hvac", se1: "se1", se2: "se2", gm: "gm1", admin: "admin1", ...JSON.parse(process.env.E2E_LOGINS || "{}") };
 
 let passed = 0, failed = 0;
 const ok = (cond, name, extra = "") => { cond ? passed++ : failed++; console.log(`${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  " + extra}`); };
@@ -17,7 +22,7 @@ const must = (r, what) => { if (r.error) throw new Error(`${what}: ${r.error.mes
 
 async function as(login) {
   const sb = createClient(URL_, KEY, { auth: { persistSession: false } });
-  must(await sb.auth.signInWithPassword({ email: `${login}@mts.local`, password: "Demo@12345" }), `login ${login}`);
+  must(await sb.auth.signInWithPassword({ email: `${login}@mts.local`, password: PASSWORD }), `login ${login}`);
   const { data } = await sb.auth.getUser();
   return { sb, id: data.user.id };
 }
@@ -36,7 +41,7 @@ const OBS_SELECT = `*,
 // 1x1 JPEG
 const JPEG = Buffer.from("/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=", "base64");
 
-const me = await as("me_elec"), meOther = await as("me_hvac"), se1 = await as("se1"), se2 = await as("se2"), gm = await as("gm1"), admin = await as("admin1");
+const me = await as(L.me1), meOther = await as(L.me2), se1 = await as(L.se1), se2 = await as(L.se2), gm = await as(L.gm), admin = await as(L.admin);
 
 // ---------- ME: schedule
 const svcs = must(await me.sb.from("services").select("*").eq("owner_me_id", me.id).eq("active", true), "my services");
@@ -150,6 +155,7 @@ ok(!!meAdd.error, "ME cannot create services");
 must(await admin.sb.from("services").delete().eq("id", sv.id), "admin delete service");
 
 // ---------- cleanup of this run's data
+await se1.sb.storage.from("observation-photos").remove([path]);
 must(await admin.sb.from("activities").delete().like("title", `${tag}%`), "cleanup");
 
 console.log(`\n${passed} passed, ${failed} failed`);
