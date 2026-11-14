@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { ReactNode, useEffect, useState } from "react";
 import { ErrorNote, Spinner } from "@/components/ui";
+import { useAuth } from "@/lib/auth";
 import { useLoad } from "@/lib/hooks";
 import { fmtDateShort, summarize, type ReportActivity } from "@/lib/report";
 import { supabase } from "@/lib/supabase";
-import { fmtTime, todayISO } from "@/lib/time";
+import { addDays, fmtTime, todayISO } from "@/lib/time";
 import type { Priority, RemarkKind, Role } from "@/lib/types";
 
-const ACT_SELECT = "id, title, activity_date, start_time, end_time, priority, services(name), observations(id, status)";
+const ACT_SELECT = "id, title, activity_date, start_time, end_time, priority, services(name, owner_me_id), observations(id, status)";
 const OBS_SELECT =
-  "id, remarks, created_at, submitter:profiles!submitted_by(full_name), activities!inner(title, activity_date, start_time, end_time, priority, services(name)), observation_remarks(body, kind, created_at, author_role)";
+  "id, remarks, created_at, submitter:profiles!submitted_by(full_name), activities!inner(title, activity_date, start_time, end_time, priority, services(name, owner_me_id)), observation_remarks(body, kind, created_at, author_role)";
 
 interface OpenObs {
   id: string;
@@ -24,7 +25,7 @@ interface OpenObs {
     start_time: string;
     end_time: string;
     priority: Priority;
-    services: { name: string } | null;
+    services: { name: string; owner_me_id: string | null } | null;
   };
   observation_remarks: { body: string; kind: RemarkKind; created_at: string; author_role: Role }[];
 }
@@ -57,7 +58,7 @@ function Kpi({ label, value, note }: { label: string; value: string; note?: stri
 export default function ReportPage() {
   const [range, setRange] = useState<{ from: string; to: string } | null>(null);
 
-  // The Overview passes its dates in the address: /gm/report/?from=...&to=...
+  // The GM Overview passes its dates in the address: /report/?from=...&to=...  (default: today)
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     const ok = (v: string | null) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
@@ -67,10 +68,38 @@ export default function ReportPage() {
   }, []);
 
   if (!range) return <Spinner />;
-  return <Report from={range.from} to={range.to} />;
+
+  function setDate(key: "from" | "to", value: string) {
+    if (!value || !range) return;
+    const next = { ...range, [key]: value };
+    setRange(next.from <= next.to ? next : { from: value, to: value });
+  }
+
+  return (
+    <>
+      <div className="no-print mb-3 flex flex-wrap items-end gap-2">
+        <label className="text-xs text-zinc-500">
+          From
+          <input type="date" className="input !w-auto" value={range.from} onChange={(e) => setDate("from", e.target.value)} />
+        </label>
+        <label className="text-xs text-zinc-500">
+          To
+          <input type="date" className="input !w-auto" value={range.to} onChange={(e) => setDate("to", e.target.value)} />
+        </label>
+        <button className="btn btn-secondary !min-h-[38px]" onClick={() => setRange({ from: todayISO(), to: todayISO() })}>
+          Today
+        </button>
+        <button className="btn btn-secondary !min-h-[38px]" onClick={() => setRange({ from: addDays(todayISO(), -6), to: todayISO() })}>
+          Last 7 days
+        </button>
+      </div>
+      <Report from={range.from} to={range.to} />
+    </>
+  );
 }
 
 function Report({ from, to }: { from: string; to: string }) {
+  const { profile } = useAuth();
   const { data, loading, error } = useLoad(async () => {
     const sb = supabase();
     const [acts, obs] = await Promise.all([
@@ -99,21 +128,25 @@ function Report({ from, to }: { from: string; to: string }) {
     };
   }, [from, to]);
 
-  const s = data ? summarize(data.rows) : null;
+  // A Maintenance Engineer's report covers only the services they are responsible for; the GM sees all.
+  const ownerId = profile?.role === "me" ? profile.id : null;
+  const rows = data ? (ownerId ? data.rows.filter((r) => r.services?.owner_me_id === ownerId) : data.rows) : [];
+  const openObs = data ? (ownerId ? data.open.filter((o) => o.activities.services?.owner_me_id === ownerId) : data.open) : [];
+  const s = data ? summarize(rows) : null;
   const period = from === to ? fmtDateShort(from) : `${fmtDateShort(from)} to ${fmtDateShort(to)}`;
 
   return (
     <div>
       <div className="no-print mb-4 flex flex-wrap items-center justify-between gap-2">
-        <Link href="/gm/" className="btn btn-secondary">
-          Back to Overview
+        <Link href={ownerId ? "/me/" : "/gm/"} className="btn btn-secondary">
+          {ownerId ? "Back to Schedule" : "Back to Overview"}
         </Link>
         <button className="btn btn-primary" onClick={() => window.print()} disabled={!s}>
           Print or save as PDF
         </button>
       </div>
       <p className="no-print mb-3 text-xs text-zinc-500">
-        In the print window choose Save as PDF as the printer to get a file you can send. To change the dates, go back to the Overview.
+        In the print window choose Save as PDF as the printer to get a file you can send.
       </p>
 
       <ErrorNote message={error} />
@@ -125,6 +158,7 @@ function Report({ from, to }: { from: string; to: string }) {
           <div className="mb-6 border-b-2 border-[#18181b] pb-3">
             <h1 className="text-2xl font-bold text-[#18181b]">Maintenance Report</h1>
             <p className="text-sm text-[#3f3f46]">NSCBI Airport · Terminal Building</p>
+            {ownerId && profile && <p className="text-sm text-[#3f3f46]">Services of {profile.full_name}</p>}
             <p className="mt-1 text-sm font-semibold text-[#18181b]">Period: {period}</p>
           </div>
 
@@ -198,7 +232,7 @@ function Report({ from, to }: { from: string; to: string }) {
           </Section>
 
           <Section title="Open observations">
-            {data.open.length === 0 ? (
+            {openObs.length === 0 ? (
               <p className="text-sm text-[#52525b]">No open observations in this period.</p>
             ) : (
               <table className="w-full border-collapse">
@@ -211,7 +245,7 @@ function Report({ from, to }: { from: string; to: string }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.open.map((o) => {
+                  {openObs.map((o) => {
                     const last = [...o.observation_remarks]
                       .filter((r) => r.kind === "remark")
                       .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];

@@ -91,7 +91,7 @@ export default function GmDashboard() {
         title="Overview"
         action={
           <div className="flex flex-wrap gap-2">
-            <Link href={`/gm/report/?from=${from}&to=${to}`} className="btn btn-primary">
+            <Link href={`/report/?from=${from}&to=${to}`} className="btn btn-primary">
               Print report
             </Link>
             <button className="btn btn-secondary" onClick={exportCsv} disabled={stats.rows.length === 0}>

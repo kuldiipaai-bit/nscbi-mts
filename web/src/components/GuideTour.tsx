@@ -348,6 +348,29 @@ function MeObservations() {
   );
 }
 
+function MeSchedule() {
+  return (
+    <div className="space-y-2 p-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-semibold text-[#18181b]">My services - schedule</span>
+        <Pulse>
+          <div className="rounded-md border border-[#d4d4d8] bg-[#ffffff] px-2 py-1 text-[9px] font-semibold text-[#18181b]">Print report</div>
+        </Pulse>
+      </div>
+      <In delay={200}>
+        <Card className="space-y-1 text-[10px]">
+          <div className="text-[8px] font-semibold uppercase tracking-wide text-[#71717a]">Your services only</div>
+          <div className="flex justify-between"><span>Lifts</span><span className="text-[#71717a]">5 planned, 4 monitored</span></div>
+          <div className="flex justify-between"><span>Escalators</span><span className="text-[#71717a]">3 planned, 3 monitored</span></div>
+        </Card>
+      </In>
+      <In delay={600}>
+        <Card className="text-[10px] text-[#52525b]">Pick the dates, press Print, then Save as PDF. One page, ready to send.</Card>
+      </In>
+    </div>
+  );
+}
+
 function MeReply() {
   return (
     <div className="space-y-2 p-3">
@@ -539,6 +562,7 @@ const TOURS: Record<RoleKey, Tour> = {
       { title: "Repeat automatically", text: "For regular work choose Daily, Weekly, Monthly or Quarterly once.", screen: <MeRecurring />, active: 3 },
       { title: "See what was found", text: "The Observations tab shows notes and photos from the shift engineers on your services.", screen: <MeObservations />, active: 4, badge: 2 },
       { title: "Reply and close", text: "Write what must be done. Every shift engineer sees it. Mark it Resolved when finished.", screen: <MeReply />, active: 4 },
+      { title: "Take a report", text: "On the Schedule page press Print report. Pick the dates and choose Save as PDF. It covers only your own services.", screen: <MeSchedule />, active: 0 },
     ],
   },
   gm: {

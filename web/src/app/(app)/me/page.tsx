@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 import { DayActivities } from "@/components/DayActivities";
 import { PageTitle } from "@/components/ui";
+import { todayISO } from "@/lib/time";
 import { supabase } from "@/lib/supabase";
 
 export default function MeHome() {
@@ -12,7 +14,14 @@ export default function MeHome() {
   }, []);
   return (
     <>
-      <PageTitle title="My services - schedule" />
+      <PageTitle
+        title="My services - schedule"
+        action={
+          <Link href={`/report/?from=${todayISO()}&to=${todayISO()}`} className="btn btn-secondary">
+            Print report
+          </Link>
+        }
+      />
       <DayActivities ownOnly />
     </>
   );

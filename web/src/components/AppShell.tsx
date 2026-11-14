@@ -45,6 +45,7 @@ const SECTION_ROLES: Record<string, Role[]> = {
   me: ["me", "admin"],
   gm: ["gm", "admin"],
   admin: ["admin"],
+  report: ["me", "gm", "admin"],
 };
 
 function Icon({ d }: { d: string }) {

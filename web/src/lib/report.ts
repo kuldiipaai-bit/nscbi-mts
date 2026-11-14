@@ -7,7 +7,7 @@ export interface ReportActivity {
   start_time: string;
   end_time: string;
   priority: Priority;
-  services: { name: string } | null;
+  services: { name: string; owner_me_id?: string | null } | null;
   observations: { id: string; status: "open" | "resolved" }[];
 }
 
