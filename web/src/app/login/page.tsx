@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useAuth, homeFor } from "@/lib/auth";
@@ -72,6 +73,9 @@ export default function LoginPage() {
             {busy ? "Signing in..." : "Sign in"}
           </button>
         </form>
+        <Link href="/guide/" className="btn btn-secondary mt-4 w-full">
+          How to use this app
+        </Link>
         <p className="mt-4 text-center text-xs text-slate-400">Forgot your password? Contact the system administrator.</p>
       </div>
     </div>

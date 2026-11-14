@@ -145,3 +145,26 @@ html.dark nav ul { box-shadow: 0 8px 30px rgb(0 0 0 / 0.5); }
 
 /* smooth theme switch */
 body, .card, .input, .btn, header, nav ul { transition: background-color .2s, border-color .2s, color .2s; }
+
+/* ------------------------------------------------------------------
+   Guide tour animations (see GuideTour). Pure CSS, no library.
+------------------------------------------------------------------- */
+@keyframes tg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes tg-ring { 0% { opacity: .95; transform: scale(1); } 100% { opacity: 0; transform: scale(1.1); } }
+@keyframes tg-pop { 0% { transform: scale(0); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes tg-type { from { max-width: 0; } to { max-width: 100%; } }
+@keyframes tg-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes tg-progress { from { width: 0; } to { width: 100%; } }
+
+.tg-in { animation: tg-in .5s ease both; }
+.tg-tick { animation: tg-pop .35s ease both; }
+.tg-pop { animation: tg-pop .4s ease .3s both; }
+.tg-bar { transform-origin: left; animation: tg-bar .9s ease both; }
+.tg-progress { animation-name: tg-progress; animation-timing-function: linear; animation-fill-mode: forwards; }
+.tg-type { display: inline-block; max-width: 0; overflow: hidden; white-space: nowrap; vertical-align: bottom; animation: tg-type 1.4s steps(22, end) .3s forwards; }
+.tg-ring { position: absolute; inset: -4px; border: 2px solid #2563eb; border-radius: 10px; pointer-events: none; animation: tg-ring 1.6s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-in, .tg-tick, .tg-pop, .tg-bar, .tg-ring, .tg-progress { animation: none !important; }
+  .tg-type { animation: none !important; max-width: 100%; }
+}
