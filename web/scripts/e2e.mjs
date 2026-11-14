@@ -148,6 +148,15 @@ ok(feed.some((o) => o.id === obs.id), "Observations feed query works");
 const dash = must(await gm.sb.from("activities").select("id, title, activity_date, start_time, end_time, priority, services(name), observations(id, status, submitter:profiles!submitted_by(full_name))").gte("activity_date", today).lte("activity_date", today).order("activity_date").order("start_time").limit(2000), "dash");
 ok(dash.length >= 4 && dash.some((a) => a.observations.length > 0), "GM overview query works");
 
+// ---------- GM print report queries (same select strings as the report page)
+const REPORT_OBS = "id, remarks, created_at, submitter:profiles!submitted_by(full_name), activities!inner(title, activity_date, start_time, end_time, priority, services(name)), observation_remarks(body, kind, created_at, author_role)";
+const repAll = await gm.sb.from("observations").select(REPORT_OBS).gte("activities.activity_date", today).lte("activities.activity_date", today).limit(300);
+ok(!repAll.error && repAll.data.some((o) => o.id === obs.id), "Report: observations in the period are found", repAll.error?.message);
+const repOld = await gm.sb.from("observations").select(REPORT_OBS).gte("activities.activity_date", "2000-01-01").lte("activities.activity_date", "2000-01-02").limit(300);
+ok(!repOld.error && repOld.data.length === 0, "Report: a period with no activities returns nothing", repOld.error?.message);
+const repOpen = await gm.sb.from("observations").select(REPORT_OBS).eq("status", "open").gte("activities.activity_date", today).lte("activities.activity_date", today).limit(300);
+ok(!repOpen.error && repOpen.data.every((o) => o.activities?.title), "Report: open-observations query works", repOpen.error?.message);
+
 // ---------- admin
 const sv = must(await admin.sb.from("services").insert({ name: `${tag} svc`, location: "T1", owner_me_id: me.id }).select("id").single(), "admin add service");
 const meAdd = await me.sb.from("services").insert({ name: `${tag} svc2` });

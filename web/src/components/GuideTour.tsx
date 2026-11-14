@@ -392,13 +392,15 @@ function Bar({ name, pct, delay }: { name: string; pct: number; delay: number })
   );
 }
 
-function GmOverview({ exportPulse }: { exportPulse?: boolean }) {
-  const exp = <div className="rounded-md border border-[#d4d4d8] bg-[#ffffff] px-2 py-1 text-[9px] font-semibold text-[#18181b]">Export CSV</div>;
+function GmOverview({ printPulse }: { printPulse?: boolean }) {
+  const print = <div className="rounded-md bg-[#18181b] px-2 py-1 text-[9px] font-semibold text-[#ffffff]">Print report</div>;
+  const csv = <div className="rounded-md border border-[#d4d4d8] bg-[#ffffff] px-2 py-1 text-[9px] font-semibold text-[#18181b]">Export CSV</div>;
   return (
     <div className="space-y-2 p-3">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-[#18181b]">Overview</span>
-        {exportPulse ? <Pulse>{exp}</Pulse> : exp}
+      <div className="text-sm font-semibold text-[#18181b]">Overview</div>
+      <div className="flex gap-1.5">
+        {printPulse ? <Pulse>{print}</Pulse> : print}
+        {csv}
       </div>
       <div className="flex gap-1.5">
         <Kpi label="Activities" value="21" />
@@ -548,7 +550,7 @@ const TOURS: Record<RoleKey, Tour> = {
       { title: "Read an observation", text: "Open any one to see the note, the checklist and the photos.", screen: <GmRead />, active: 2, badge: 3 },
       { title: "Give direction", text: "Post a remark. The engineer in charge and all shift engineers are told.", screen: <GmRemark />, active: 2 },
       { title: "Close or reopen", text: "Mark it Resolved with a short note, or reopen it if the problem comes back.", screen: <GmClose />, active: 2 },
-      { title: "Take a report", text: "On the Overview press Export CSV to save the chosen dates.", screen: <GmOverview exportPulse />, active: 0 },
+      { title: "Take a report", text: "On the Overview press Print report, then choose Save as PDF. You get a one-page report to send or print.", screen: <GmOverview printPulse />, active: 0 },
     ],
   },
 };

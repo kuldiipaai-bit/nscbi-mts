@@ -164,6 +164,20 @@ body, .card, .input, .btn, header, nav ul { transition: background-color .2s, bo
 .tg-type { display: inline-block; max-width: 0; overflow: hidden; white-space: nowrap; vertical-align: bottom; animation: tg-type 1.4s steps(22, end) .3s forwards; }
 .tg-ring { position: absolute; inset: -4px; border: 2px solid #2563eb; border-radius: 10px; pointer-events: none; animation: tg-ring 1.6s ease-out infinite; }
 
+/* ------------------------------------------------------------------
+   Printing (the GM report). Hides the app chrome and forces a plain white page.
+------------------------------------------------------------------- */
+@page { size: A4; margin: 14mm; }
+@media print {
+  header, nav, .no-print { display: none !important; }
+  html, html.dark, body, html.dark body { background: #ffffff !important; color: #000000 !important; }
+  main { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+  .report-sheet { max-width: none !important; padding: 0 !important; box-shadow: none !important; --tw-ring-shadow: 0 0 #0000 !important; }
+  .print-keep { break-inside: avoid; }
+  h2 { break-after: avoid; }
+  thead { display: table-header-group; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tg-in, .tg-tick, .tg-pop, .tg-bar, .tg-ring, .tg-progress { animation: none !important; }
   .tg-type { animation: none !important; max-width: 100%; }
