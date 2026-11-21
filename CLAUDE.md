@@ -50,7 +50,7 @@
 
 - পর্দা: **Next.js 14 (স্ট্যাটিক এক্সপোর্ট), TypeScript, Tailwind CSS**, মোবাইল-ফার্স্ট PWA।
 - ব্যাকএন্ড: **Supabase** (Postgres, Auth, Storage, Row Level Security, Edge Function)। স্কিমা শুধু SQL migration ফাইলে।
-- হোস্টিং এখন: **GitHub Pages + Supabase ফ্রি টিয়ার**। পরে: Docker দিয়ে নিজের সার্ভারে (docs/SELFHOST.md)।
+- হোস্টিং এখন: **Cloudflare Workers (স্ট্যাটিক ফাইল) + Supabase ফ্রি টিয়ার**, ডিপ্লয়ের ধাপ docs/CLOUDFLARE.md-এ। GitHub Pages-এর পুরনো ঠিকানাও আপাতত চালু আছে। পরে: Docker দিয়ে নিজের সার্ভারে (docs/SELFHOST.md)।
 - Excel/CSV পড়া: read-excel-file ও papaparse। পরীক্ষা: vitest। এই চারটা লাইব্রেরি আমাকে না জিজ্ঞেস করেই যোগ হয়েছিল, PROGRESS.md-এ অনুমোদনের অপেক্ষায় লেখা আছে।
 
 ## ৭. চালানোর পদ্ধতি

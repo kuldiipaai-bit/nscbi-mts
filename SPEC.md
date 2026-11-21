@@ -106,7 +106,7 @@
 ## ৯. প্রযুক্তি ও ডিপ্লয়
 
 - পর্দা: Next.js (স্ট্যাটিক এক্সপোর্ট), TypeScript, Tailwind CSS। ব্যাকএন্ড: Supabase।
-- এখন: GitHub Pages + ফ্রি Supabase। GitHub Actions নিজে বানিয়ে প্রকাশ করে। ফ্রি Supabase বসে না যায় তাই সপ্তাহে দুবার একটা হালকা ডাক।
+- এখন: Cloudflare Workers-এ স্ট্যাটিক ফাইল + ফ্রি Supabase (ঠিকানা https://kuldiip.mts-nscbia.workers.dev)। GitHub Pages-এর পুরনো ঠিকানাও আপাতত চালু। GitHub Actions নিজে বানিয়ে প্রকাশ করে। ফ্রি Supabase বসে না যায় তাই সপ্তাহে দুবার একটা হালকা ডাক।
 - পরে: নিজের সার্ভার বা LAN-এ Docker দিয়ে সেল্ফ-হোস্টেড Supabase ও nginx। বদলাতে হবে শুধু দুটো কনফিগ: Supabase-এর ঠিকানা ও anon কী।
 - স্কিমা, অনুমতি ও নিয়ম সব SQL ফাইলে (supabase/migrations)। অ্যাডমিনের ইউজার তৈরির কাজ Edge Function দিয়ে (service-role কী ব্রাউজারে যায় না)।
 
